@@ -80,6 +80,15 @@ namespace functionObjects //nested namespaces
                   Class timedTurbulenceOn Declaration
 \*---------------------------------------------------------------------------*/
 
+/*Things left to do:
+
+1. Make it check whether turbulence is on already if the case is starting from 0
+   -and have it change turn it off if it is already on
+2. Test on a parallel case
+3. Make variable names meaningful
+
+*/
+
 class timedTurbulenceOn
 :
     public functionObject //inherit from Foam::functionObject class
@@ -90,21 +99,20 @@ class timedTurbulenceOn
         const Time& time_;
 
         //- Name of file to update
-        fileName fileToUpdate_; //fileToUpdate is now an instance of the Foam::fileName class
-
+        scalar turnOnTime_; //fileToUpdate is now an instance of the Foam::fileName class
+        bool flag = false;
         //- List of times vs filenames
-        List<Tuple2<scalar, fileName>> timeVsFile_; //timeVsFile is now an instance of Foam::List class
-
+        //List<Tuple2<scalar, fileName>> turbPropFiles_; //timeVsFile is now an instance of Foam::List class
+        List<fileName> turbPropFiles_;
         //- Index of last file copied
-        label lastIndex_; //lastIndex_ is now a int type variable for use in OpenFoam
+        //label lastIndex_; //lastIndex_ is now a int type variable for use in OpenFoam
 
 
     // Private Member Functions
 
         //- Update file
         void updateFile();
-
-        void turnOn();
+        void checkState();
 
         //- Disallow default bitwise copy construct
         timedTurbulenceOn(const timedTurbulenceOn&);

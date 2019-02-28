@@ -1,0 +1,25 @@
+{
+    "files.associations": {
+        "snappyHexMeshDict": "cpp",
+        "surfaceFeatureExtractDict": "cpp",
+        "setFieldsDict": "cpp",
+        "fvSolution": "cpp",
+        "fvSchemes": "cpp",
+        "decomposeParDict": "cpp",
+        "controlDict": "cpp",
+        "blockMeshDict": "cpp",
+        "g": "cpp",
+        "phaseProperties": "cpp",
+        "*.air": "cpp",
+        "*.water": "cpp",
+        "epsilonm": "cpp",
+        "km": "cpp",
+        "p": "cpp",
+        "p_rgh": "cpp",
+        "Theta": "cpp",
+        "caseParameters": "cpp",
+        "*.tcc": "c",
+        "istream": "c",
+        "fstream": "c"
+    }
+}

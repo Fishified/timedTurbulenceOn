@@ -25,113 +25,96 @@ namespace functionObjects
 }
 }
 
-
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::functionObjects::timedTurbulenceOn::turnOn()
+
+void Foam::functionObjects::timedTurbulenceOn::checkState()
 {
-       //type() prints the type of the functionObject (i.e. timedTurbulenceOn)
-        //timeVsFile_[i].second() prints the file name that will be copied
-        //Info<< nl << type() << ": turning on turbulence in" << nl << timeVsFile_[i].second() << endl;
+        Info<< nl << type() << " functionObject checking state:" << endl;
+        /*using namespace std;
+        forAll(turbPropFiles_,i)
+        {
+            ifstream infile(turbPropFiles_[i], ifstream::in);
+            ofstream outfile(turbPropFiles_[i]+Foam::name(pid()), ofstream::out);
 
-        /*fileName destFile(fileToUpdate_ + Foam::name(pid()));
-        cp(timeVsFile_[i].second(), destFile);
-        mv(destFile, fileToUpdate_);
-        lastIndex_ = i;*/
+            string findWord (" on");
+            string newWord (" off");
+            string line;
 
-}
+            while (getline(infile, line))
+                    {
+                    if (line.find(findWord) != string::npos) {
 
-void Foam::functionObjects::timedTurbulenceOn::updateFile()
-{
-    label i = lastIndex_;
-    while
-    (
-        //checks if end of list has been reached
-        //then checks if the trigger time (i.e. first()) is less than the
-        //simulation time. If the two statements are true, nothing happens.
-        //If the statement is false, increase i++ and run the next if statement.
-        i < timeVsFile_.size()-1 && timeVsFile_[i+1].first() < time_.value()
-    )
-    {
-        i++;
-    }
+                    size_t found = line.find(findWord);
 
-    if (i > lastIndex_)
-    {
-        
-        //type() prints the type of the functionObject (i.e. timedTurbulenceOn)
-        //timeVsFile_[i].second() prints the file name that will be copied
-        Info<< nl << type() << ": turning on turbulence in" << nl << timeVsFile_[i].second() << endl;
-
-        /*
-        fileName destFile(fileToUpdate_ + Foam::name(pid()));
-        cp(timeVsFile_[i].second(), destFile);
-        mv(destFile, fileToUpdate_);
-        lastIndex_ = i;*/
-
-
-        using namespace std;
-        char orig[] = "C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties.water";
-        char temp[] = "C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties_temp.water";
-        ifstream infile("C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties.water", ifstream::in);
-        ofstream outfile("C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties_temp.water", ofstream::out);
-
-        char orig2[] = "C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties.air";
-        char temp2[] = "C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties_temp.air";
-        ifstream infile2("C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties.air", ifstream::in);
-        ofstream outfile2("C:/Users/Jason/Desktop/bubbleColumn/constant/turbulenceProperties_temp.air", ofstream::out);
-
-        string findWord (" off");
-        string newWord (" on");
-        string line;
-        while (getline(infile, line))
-                {
-                    //cout <<  line <<'\n';
-                if (line.find(findWord) != string::npos) {
-
-                size_t found = line.find(findWord);
-
-                if (found!=string::npos)
-                    line.replace(found,4,newWord);
-                    outfile << line << std::endl;
+                    if (found!=string::npos)
+                        line.replace(found,3,newWord);
+                        outfile << line << std::endl;
+                    }
+                    else
+                        outfile << line << std::endl;
+                        continue;
                 }
-                else
-                    outfile << line << std::endl;
-                    continue;
-            }
 
             infile.close();
             outfile.close();
-            remove(orig);
+                
+            fileName origFile(turbPropFiles_[i]);
+            fileName newFile(turbPropFiles_[i]+Foam::name(pid()));
+            rm(origFile);
 
-            int result=rename(temp,orig);
+            mv(newFile, origFile);
+        }*/
+}
+void Foam::functionObjects::timedTurbulenceOn::updateFile()
+{
+    //Info<< nl << type() << " functionObject checking state:" << endl;
+    if (time_.value() >= turnOnTime_ )
+    {
+        
+        Info<< nl << "The " << type() << " functionObject is turning turbulence on:" << endl;
 
-            string line2;
-            while (getline(infile2, line2))
-                {
-                    //cout <<  line <<'\n';
-                if (line2.find(findWord) != string::npos) {
+        using namespace std;
 
-                size_t found2 = line2.find(findWord);
+        forAll(turbPropFiles_,i)
+        {
+            ifstream infile(turbPropFiles_[i], ifstream::in);
+            ofstream outfile(turbPropFiles_[i]+Foam::name(pid()), ofstream::out);
 
-                if (found2!=string::npos)
-                    line2.replace(found2,4,newWord);
-                    outfile2 << line2 << std::endl;
+            string findWord (" off");
+            string newWord (" on");
+            string line;
+
+            while (getline(infile, line))
+                    {
+                    if (line.find(findWord) != string::npos) {
+
+                    size_t found = line.find(findWord);
+
+                    if (found!=string::npos)
+                        line.replace(found,4,newWord);
+                        outfile << line << std::endl;
+                    }
+                    else
+                        outfile << line << std::endl;
+                        continue;
                 }
-                else
-                    outfile2 << line2 << std::endl;
-                    continue;
-            }
 
-            infile2.close();
-            outfile2.close();
-            remove(orig2);
-            int result2=rename(temp2,orig2);
-        lastIndex_ = i;
+            infile.close();
+            outfile.close();
+                
+            fileName origFile(turbPropFiles_[i]);
+            fileName newFile(turbPropFiles_[i]+Foam::name(pid()));
+            rm(origFile);
+
+            mv(newFile, origFile);
+
+        
+
+        }
+        flag = true;
     }
 }
-
-
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -145,10 +128,11 @@ Foam::functionObjects::timedTurbulenceOn::timedTurbulenceOn
 :
     functionObject(name),
     time_(runTime),
-    fileToUpdate_(dict.lookup("fileToUpdate")),
-    timeVsFile_(),
-    lastIndex_(-1)
+    turnOnTime_(),
+    turbPropFiles_()
+    //lastIndex_(-1)
 {
+    
     read(dict);
 }
 
@@ -166,38 +150,41 @@ bool Foam::functionObjects::timedTurbulenceOn::read
     const dictionary& dict
 )
 {
-    dict.lookup("fileToUpdate") >> fileToUpdate_;
-    dict.lookup("timeVsFile") >> timeVsFile_;
+    dict.lookup("turnOnTime") >> turnOnTime_;
+    dict.lookup("turbPropFiles") >> turbPropFiles_;
 
-    lastIndex_ = -1;
-    fileToUpdate_.expand();
     Info<< type() << "Implementing my third custom functionObject!!!!" << nl;
     Info<< type() << ": time vs file list:" << nl;
-    forAll(timeVsFile_, i)
+    forAll(turbPropFiles_, i)
     {
-        timeVsFile_[i].second() = timeVsFile_[i].second().expand();
-        if (!isFile(timeVsFile_[i].second()))
+        turbPropFiles_[i] = turbPropFiles_[i].expand();
+        if (!isFile(turbPropFiles_[i]))
         {
             FatalErrorInFunction
-                << "File: " << timeVsFile_[i].second() << " not found"
+                << "File: " << turbPropFiles_[i] << " not found"
                 << nl << exit(FatalError);
         }
 
-        Info<< "    " << timeVsFile_[i].first() << tab
-            << timeVsFile_[i].second() << endl;
+        Info<< "    " << turbPropFiles_[i] << tab
+            << turbPropFiles_[i] << endl;
+
     }
     Info<< endl;
-
-    updateFile();
-
+    checkState();
+    /*if (flag == false)
+    {
+        updateFile();
+    }*/
     return true;
 }
 
 
 bool Foam::functionObjects::timedTurbulenceOn::execute()
 {
-    updateFile();
-
+    if (flag == false)
+    {
+        updateFile();
+    }
     return true;
 }
 
